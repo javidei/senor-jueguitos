@@ -1,4 +1,4 @@
-/* Comecocos + swipe surfaces (hub v0.2.0) */
+/* Comecocos + swipe surfaces + mobile fullscreen (hub v0.2.0) */
 .cc-layout {
   display: grid;
   gap: 1rem;
@@ -34,4 +34,71 @@
 
 .snake-layout {
   touch-action: none;
+}
+
+@media (max-width: 640px) {
+  body.sj-in-game .site-footer { display: none; }
+  body.sj-in-game .topbar { padding: 0.45rem 0.75rem; max-width: none; }
+  body.sj-in-game .brand-text { font-size: 0.85rem; }
+  body.sj-in-game .build-info { font-size: 0.65rem; }
+  body.sj-in-game .app {
+    padding: 0.15rem 0.5rem 0.75rem;
+    min-height: calc(100dvh - 3.2rem);
+    max-width: none;
+  }
+  body.sj-in-game .game-shell { gap: 0.45rem; min-height: calc(100dvh - 3.5rem); }
+  body.sj-in-game .game-toolbar { gap: 0.35rem; }
+  body.sj-in-game .game-title-wrap p { display: none; }
+  body.sj-in-game .game-title-wrap h2 { font-size: 1.05rem; }
+  body.sj-in-game .toolbar-actions { gap: 0.35rem; }
+  body.sj-in-game .toolbar-actions .btn {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.8rem;
+    border-radius: 10px;
+  }
+  body.sj-in-game .panel.game-mount {
+    padding: 0.55rem;
+    border-radius: 14px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  body.sj-game-serpiente .snake-layout { gap: 0.45rem; width: 100%; flex: 1; }
+  body.sj-game-serpiente .snake-meta { gap: 0.85rem; font-size: 0.9rem; }
+  body.sj-game-serpiente #snake-canvas {
+    width: min(100%, calc(100dvh - 14rem));
+    max-width: 100%;
+    aspect-ratio: 1;
+    border-radius: 12px;
+  }
+  body.sj-game-serpiente .dpad {
+    grid-template-columns: repeat(3, 48px);
+    grid-template-rows: repeat(2, 42px);
+    gap: 0.3rem;
+  }
+  body.sj-game-serpiente .hint { font-size: 0.75rem; }
+  body.sj-game-serpiente .status-line { font-size: 0.85rem; min-height: 1.2em; }
+  body.sj-game-comecocos .cc-layout { gap: 0.45rem; width: 100%; }
+  body.sj-game-comecocos .cc-meta { gap: 0.75rem; font-size: 0.85rem; }
+  body.sj-game-comecocos #cc-canvas {
+    width: min(100%, calc(100dvh - 15rem));
+    max-width: 100%;
+    border-radius: 12px;
+  }
+  body.sj-game-comecocos .dpad {
+    grid-template-columns: repeat(3, 48px);
+    grid-template-rows: repeat(2, 42px);
+    gap: 0.3rem;
+  }
+  body.sj-game-comecocos .hint { font-size: 0.75rem; }
+}
+
+@media (max-width: 640px) and (orientation: landscape) {
+  body.sj-game-serpiente #snake-canvas {
+    width: min(56dvw, calc(100dvh - 5.5rem));
+  }
+  body.sj-game-comecocos #cc-canvas {
+    width: min(42dvw, calc(100dvh - 4.5rem));
+  }
+  body.sj-in-game .game-title-wrap h2 { font-size: 0.95rem; }
 }
