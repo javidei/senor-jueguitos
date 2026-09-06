@@ -1,12 +1,14 @@
 /**
- * Serpiente — Snake clásico con teclado, gestos y cruceta táctil.
+ * Serpiente — wrap en paredes, muerte solo al morderse, velocidad creciente.
  */
 (function () {
   "use strict";
   window.SJGames = window.SJGames || {};
 
   const GRID = 20;
-  const TICK_MS = 110;
+  const TICK_START_MS = 220;
+  const TICK_MIN_MS = 70;
+  const TICK_STEP_MS = 8;
 
   function mount(root, api) {
     root.innerHTML = `
@@ -23,7 +25,7 @@
           <button type="button" class="btn right" data-dir="right" aria-label="Derecha">▶</button>
         </div>
         <p class="status-line" id="snake-status">Pulsa Jugar o una flecha para empezar.</p>
-        <p class="hint">Teclado: flechas / WASD · Móvil: gestos o cruceta</p>
+        <p class="hint">Paredes = sales por el otro lado · Mueres solo si te muerdes · Empieza lento y acelera al comer</p>
       </div>
     `;
 
@@ -33,7 +35,7 @@
     const bestEl = root.querySelector("#snake-best");
     const status = root.querySelector("#snake-status");
 
-    let snake, dir, nextDir, food, score, best, running, alive, tickId;
+    let snake, dir, nextDir, food, score, best, running, alive, tickId, tickMs;
     best = Number(localStorage.getItem("sj-serpiente-best") || 0);
     bestEl.textContent = String(best);
 
@@ -44,6 +46,10 @@
 
     function cellSize() {
       return canvas.width / GRID;
+    }
+
+    function wrap(n) {
+      return ((n % GRID) + GRID) % GRID;
     }
 
     function randCell() {
@@ -61,6 +67,25 @@
       food = spot;
     }
 
+    function stopLoop() {
+      if (tickId) {
+        clearInterval(tickId);
+        tickId = null;
+      }
+    }
+
+    function startLoop() {
+      stopLoop();
+      tickId = setInterval(step, tickMs);
+    }
+
+    function speedUp() {
+      const next = Math.max(TICK_MIN_MS, tickMs - TICK_STEP_MS);
+      if (next === tickMs) return;
+      tickMs = next;
+      if (running) startLoop();
+    }
+
     function reset() {
       stopLoop();
       snake = [
@@ -71,6 +96,7 @@
       dir = { x: 1, y: 0 };
       nextDir = { ...dir };
       score = 0;
+      tickMs = TICK_START_MS;
       scoreEl.textContent = "0";
       alive = true;
       running = false;
@@ -79,19 +105,12 @@
       setStatus("Pulsa Jugar o una flecha para empezar.");
     }
 
-    function stopLoop() {
-      if (tickId) {
-        clearInterval(tickId);
-        tickId = null;
-      }
-    }
-
     function start() {
       if (!alive) reset();
       if (running) return;
       running = true;
-      setStatus("¡En marcha!");
-      tickId = setInterval(step, TICK_MS);
+      setStatus("¡En marcha! Las paredes te atraviesan.");
+      startLoop();
     }
 
     function pause() {
@@ -109,12 +128,11 @@
 
     function step() {
       dir = nextDir;
-      const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+      const head = {
+        x: wrap(snake[0].x + dir.x),
+        y: wrap(snake[0].y + dir.y),
+      };
 
-      if (head.x < 0 || head.y < 0 || head.x >= GRID || head.y >= GRID) {
-        gameOver();
-        return;
-      }
       if (snake.some((s) => s.x === head.x && s.y === head.y)) {
         gameOver();
         return;
@@ -130,6 +148,7 @@
           localStorage.setItem("sj-serpiente-best", String(best));
         }
         placeFood();
+        speedUp();
       } else {
         snake.pop();
       }
@@ -140,7 +159,7 @@
       alive = false;
       running = false;
       stopLoop();
-      setStatus(`Game over · ${score} puntos. Pulsa Nueva partida.`, "bad");
+      setStatus(`Te mordiste la cola · ${score} puntos. Pulsa Nueva partida.`, "bad");
       draw(true);
     }
 
