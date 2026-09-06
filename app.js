@@ -1,6 +1,7 @@
 /**
  * Señor Jueguitos — menú, registro de juegos y enrutado simple.
  * Para añadir un juego: registra un módulo en GAMES (abajo) e incluye su script en index.html.
+ * Back del móvil: popstate vuelve al menú (pushState al abrir un juego).
  */
 (function () {
   "use strict";
@@ -42,6 +43,8 @@
   const app = document.getElementById("app");
   const brandBtn = document.getElementById("brand-btn");
   let activeCleanup = null;
+  let activeGameId = null;
+  let ignoreHashChange = false;
 
   function setBuildInfo(label) {
     document.querySelectorAll("#build-info, #footer-build").forEach((el) => {
@@ -67,25 +70,54 @@
       activeCleanup = null;
     }
     app.innerHTML = "";
+    document.body.classList.remove("sj-in-game", "sj-game-serpiente", "sj-game-comecocos", "sj-game-sudoku", "sj-game-memoria");
+    activeGameId = null;
   }
 
-  function goMenu() {
+  function parseHash() {
+    const hash = (location.hash || "#/").replace(/^#\/?/, "");
+    return hash.split("/")[0] || "";
+  }
+
+  function goMenu(opts = {}) {
     clearApp();
-    history.replaceState({ screen: "menu" }, "", "#/");
+    if (!opts.skipHistory) {
+      ignoreHashChange = true;
+      history.replaceState({ screen: "menu", sj: 1 }, "", "#/");
+      queueMicrotask(() => { ignoreHashChange = false; });
+    }
     renderMenu();
   }
 
-  function goGame(id) {
+  function goGame(id, opts = {}) {
     const game = GAMES.find((g) => g.id === id);
     if (!game) {
-      goMenu();
+      goMenu(opts);
       return;
     }
+
+    if (activeGameId === id && app.querySelector(".game-shell")) {
+      return;
+    }
+
     clearApp();
-    history.replaceState({ screen: "game", id }, "", `#/${id}`);
+    activeGameId = id;
+
+    if (!opts.skipHistory) {
+      ignoreHashChange = true;
+      const state = { screen: "game", id, sjGame: id, sj: 1 };
+      if (history.state && history.state.sjGame === id) {
+        history.replaceState(state, "", `#/${id}`);
+      } else {
+        history.pushState(state, "", `#/${id}`);
+      }
+      queueMicrotask(() => { ignoreHashChange = false; });
+    }
+
+    document.body.classList.add("sj-in-game", `sj-game-${id}`);
 
     const shell = document.createElement("section");
-    shell.className = "game-shell";
+    shell.className = `game-shell game-${id}`;
     shell.innerHTML = `
       <div class="game-toolbar">
         <div class="game-title-wrap">
@@ -100,11 +132,11 @@
     `;
     app.appendChild(shell);
 
-    shell.querySelector('[data-action="menu"]').addEventListener("click", goMenu);
+    shell.querySelector('[data-action="menu"]').addEventListener("click", () => goMenu());
 
     const mountRoot = shell.querySelector(".game-mount");
     const api = {
-      goMenu,
+      goMenu: () => goMenu(),
       addToolbarButton(label, onClick, className = "") {
         const btn = document.createElement("button");
         btn.type = "button";
@@ -146,22 +178,38 @@
     app.appendChild(section);
   }
 
-  function routeFromHash() {
-    const hash = (location.hash || "#/").replace(/^#\/?/, "");
-    const id = hash.split("/")[0];
+  function routeFromHash(opts = {}) {
+    const id = parseHash();
     if (id && GAMES.some((g) => g.id === id)) {
-      goGame(id);
+      goGame(id, opts);
     } else {
-      goMenu();
+      goMenu(opts);
     }
   }
 
-  brandBtn.addEventListener("click", goMenu);
-  window.addEventListener("hashchange", routeFromHash);
+  function onPopState() {
+    routeFromHash({ skipHistory: true });
+  }
 
-  // Exponer registro por si se quiere inspeccionar o ampliar en consola
+  function onHashChange() {
+    if (ignoreHashChange) return;
+    routeFromHash({ skipHistory: true });
+  }
+
+  brandBtn.addEventListener("click", () => goMenu());
+  window.addEventListener("popstate", onPopState);
+  window.addEventListener("hashchange", onHashChange);
+
   window.SJHub = { GAMES, goMenu, goGame, VERSION };
 
   loadVersion();
-  routeFromHash();
+
+  const initialId = parseHash();
+  if (initialId && GAMES.some((g) => g.id === initialId)) {
+    history.replaceState({ screen: "game", id: initialId, sjGame: initialId, sj: 1 }, "", `#/${initialId}`);
+    goGame(initialId, { skipHistory: true });
+  } else {
+    history.replaceState({ screen: "menu", sj: 1 }, "", "#/");
+    goMenu({ skipHistory: true });
+  }
 })();
