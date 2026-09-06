@@ -67,6 +67,10 @@
       food = spot;
     }
 
+    function currentTick() {
+      return tickMs;
+    }
+
     function stopLoop() {
       if (tickId) {
         clearInterval(tickId);
@@ -76,7 +80,7 @@
 
     function startLoop() {
       stopLoop();
-      tickId = setInterval(step, tickMs);
+      tickId = setInterval(step, currentTick());
     }
 
     function speedUp() {
