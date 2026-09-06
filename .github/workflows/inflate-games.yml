@@ -1,0 +1,65 @@
+name: Inflate full game JS from b64 parts
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/inflate-games.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  inflate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Decode serpiente + comecocos and bump cache to v0.2.1
+        run: |
+          set -euo pipefail
+          python3 << 'PY'
+          import base64, pathlib, re
+
+          root = pathlib.Path('.')
+
+          def inflate(stem: str, nparts: int, out: pathlib.Path, expect: int, marker: str):
+              parts = []
+              for i in range(nparts):
+                  p = root / 'games' / f'{stem}.part{i}.b64'
+                  parts.append(p.read_text().replace('\n','').replace('\r','').replace(' ',''))
+              data = base64.b64decode(''.join(parts))
+              assert len(data) == expect, (stem, len(data), expect)
+              text = data.decode('utf-8')
+              assert marker in text, marker
+              out.write_bytes(data)
+              print(f'wrote {out} {len(data)} bytes OK')
+
+          inflate('serpiente', 6, root/'games'/'serpiente.js', 13790, 'drawHead')
+          inflate('comecocos', 11, root/'games'/'comecocos.js', 24359, 'mouthPhase')
+
+          idx = root/'index.html'
+          html = idx.read_text(encoding='utf-8')
+          html2 = html.replace('?v=0.2.0', '?v=0.2.1').replace('v0.2.0 · 07/09/2026', 'v0.2.1 · 07/09/2026')
+          # also normalize if partially bumped
+          html2 = html2.replace('?v=0.2.1', '?v=0.2.1')
+          idx.write_text(html2, encoding='utf-8')
+          (root/'version.json').write_text(
+              '{\n  "version": "0.2.1",\n  "date": "07/09/2026",\n  "label": "v0.2.1 · 07/09/2026"\n}\n',
+              encoding='utf-8',
+          )
+          print('cache bumped to v0.2.1')
+          PY
+
+      - name: Commit and push
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add games/serpiente.js games/comecocos.js index.html version.json
+          if git diff --cached --quiet; then
+            echo 'No changes to commit'
+            exit 0
+          fi
+          git commit -m 'Replace serpiente/comecocos stubs with full sources; bump cache to v0.2.1'
+          git push
