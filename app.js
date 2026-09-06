@@ -96,6 +96,7 @@
       return;
     }
 
+    // Already showing this game (e.g. duplicate popstate/hash)
     if (activeGameId === id && app.querySelector(".game-shell")) {
       return;
     }
@@ -106,6 +107,7 @@
     if (!opts.skipHistory) {
       ignoreHashChange = true;
       const state = { screen: "game", id, sjGame: id, sj: 1 };
+      // Push so Android/browser Back returns to menu instead of leaving the site
       if (history.state && history.state.sjGame === id) {
         history.replaceState(state, "", `#/${id}`);
       } else {
@@ -188,6 +190,7 @@
   }
 
   function onPopState() {
+    // Back/forward: hash already updated; show menu or game without pushing again
     routeFromHash({ skipHistory: true });
   }
 
@@ -204,6 +207,8 @@
 
   loadVersion();
 
+  // Initial route: replaceState so the first Back from a deep-linked game can still leave,
+  // but opening a game from the menu will push and Back returns here.
   const initialId = parseHash();
   if (initialId && GAMES.some((g) => g.id === initialId)) {
     history.replaceState({ screen: "game", id: initialId, sjGame: initialId, sj: 1 }, "", `#/${initialId}`);
