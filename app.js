@@ -5,7 +5,7 @@
 (function () {
   "use strict";
 
-  const VERSION = { version: "0.1.0", date: "06/09/2026", label: "v0.1.0 · 06/09/2026" };
+  const VERSION = { version: "0.2.0", date: "07/09/2026", label: "v0.2.0 · 07/09/2026" };
 
   /** @type {{ id: string, title: string, description: string, icon: string, mount: Function }[]} */
   const GAMES = [
@@ -29,6 +29,13 @@
       description: "Come, crece y no te choques. Clásico Snake.",
       icon: "🐍",
       mount: (root, api) => window.SJGames.serpiente.mount(root, api),
+    },
+    {
+      id: "comecocos",
+      title: "Comecocos",
+      description: "Laberinto arcade: pellets, power-ups y fantasmas. ¡A comer!",
+      icon: "👻",
+      mount: (root, api) => window.SJGames.comecocos.mount(root, api),
     },
   ];
 
