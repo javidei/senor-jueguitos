@@ -1,13 +1,13 @@
-/** Señor Jueguitos — hub v0.3.1 */
+/** Señor Jueguitos — hub v0.3.2 */
 (function(){
 "use strict";
-const VERSION={version:"0.3.1",date:"08/09/2026",label:"v0.3.1 · 08/09/2026"};
+const VERSION={version:"0.3.2",date:"08/09/2026",label:"v0.3.2 · 08/09/2026"};
 const GAMES=[
 {id:"sudoku",title:"Sudoku",description:"Rellena la cuadrícula 9×9. Genera, comprueba y parte de nuevo.",icon:"🔢",mount:(r,a)=>window.SJGames.sudoku.mount(r,a)},
 {id:"memoria",title:"Memoria",description:"Encuentra todas las parejas. Entrena la memoria visual.",icon:"🧠",mount:(r,a)=>window.SJGames.memoria.mount(r,a)},
 {id:"serpiente",title:"Serpiente",description:"Come, crece y no te choques. Clásico Snake.",icon:"🐍",mount:(r,a)=>window.SJGames.serpiente.mount(r,a)},
 {id:"comecocos",title:"Comecocos",description:"Laberinto arcade: pellets, power-ups y fantasmas.",icon:"👻",mount:(r,a)=>window.SJGames.comecocos.mount(r,a)},
-{id:"buscaminas",title:"Buscaminas",description:"Tres dificultades clásicas, banderas, reloj y récord.",icon:"💣",mount:(r,a)=>window.SJGames.buscaminas.mount(r,a)},
+{id:"buscaminas",title:"Buscaminas",description:"Dos dificultades, banderas, reloj y récord.",icon:"💣",mount:(r,a)=>window.SJGames.buscaminas.mount(r,a)},
 {id:"tetris",title:"Tetris",description:"Las 7 piezas clásicas, ghost, niveles y bolsa de 7.",icon:"🧱",mount:(r,a)=>window.SJGames.tetris.mount(r,a)}];
 const app=document.getElementById("app"),brandBtn=document.getElementById("brand-btn");let cleanup=null,active=null,ignore=false;
 function setBuild(label){document.querySelectorAll("#build-info,#footer-build").forEach(e=>e.textContent=label)}
