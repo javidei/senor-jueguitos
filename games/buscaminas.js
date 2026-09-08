@@ -1,13 +1,13 @@
 (function(){
 "use strict";
 window.SJGames=window.SJGames||{};
-const LEVELS={facil:{label:"Fácil",w:9,h:9,mines:10},medio:{label:"Medio",w:16,h:16,mines:40},dificil:{label:"Difícil",w:30,h:16,mines:99}};
+const LEVELS={facil:{label:"Fácil",w:9,h:9,mines:10},medio:{label:"Medio",w:16,h:16,mines:40}};
 function mount(root,api){
   let level="facil",cfg=LEVELS[level],cells=[],started=false,over=false,opened=0,flags=0,timer=0,timerId=0,longTimer=0,press=null,flagMode=false,suppressClickUntil=0,suppressContextUntil=0;
   const LONG_PRESS_MS=460,MOVE_TOLERANCE=12;
   root.innerHTML=`<div class="ms-wrap">
     <div class="ms-controls">
-      <label>Dificultad <select id="ms-level"><option value="facil">Fácil 9×9 · 10</option><option value="medio">Medio 16×16 · 40</option><option value="dificil">Difícil 30×16 · 99</option></select></label>
+      <label>Dificultad <select id="ms-level"><option value="facil">Fácil 9×9 · 10</option><option value="medio">Medio 16×16 · 40</option></select></label>
       <button type="button" id="ms-flag-mode" class="ms-flag-toggle" aria-pressed="false">🚩 Modo bandera: OFF</button>
     </div>
     <div class="ms-meta"><span>⏱ <strong id="ms-time">0</strong>s</span><span>🚩 <strong id="ms-flags">0</strong>/<strong id="ms-mines">10</strong></span><span>🏆 <strong id="ms-best">—</strong></span></div>
@@ -22,7 +22,7 @@ function mount(root,api){
   function updateBest(){const v=Number(localStorage.getItem(bestKey())||0);bestEl.textContent=v?`${v}s`:"—"}
   function stopTimer(){if(timerId){clearInterval(timerId);timerId=0}}
   function startTimer(){if(timerId)return;timerId=setInterval(()=>{timer++;timeEl.textContent=timer},1000)}
-  function defaultStatus(){return level==="dificil"?"Primer clic seguro. Desplaza el tablero si lo necesitas. Pulsación larga o modo 🚩 = bandera.":"Primer clic seguro. Clic derecho, pulsación larga o modo 🚩 = bandera."}
+  function defaultStatus(){return "Primer clic seguro. Clic derecho, pulsación larga o modo 🚩 = bandera."}
   function resetPress(){clearTimeout(longTimer);longTimer=0;press=null}
   function setFlagMode(on){flagMode=!!on;flagBtn.classList.toggle("active",flagMode);flagBtn.setAttribute("aria-pressed",String(flagMode));flagBtn.textContent=flagMode?"🚩 Modo bandera: ON":"🚩 Modo bandera: OFF"}
   function makeBoard(){stopTimer();resetPress();cfg=LEVELS[level];cells=Array.from({length:cfg.w*cfg.h},()=>({mine:false,n:0,open:false,flag:false}));started=false;over=false;opened=0;flags=0;timer=0;suppressClickUntil=0;suppressContextUntil=0;timeEl.textContent="0";flagsEl.textContent="0";minesEl.textContent=cfg.mines;updateBest();status.textContent=defaultStatus();status.className="status-line";board.style.setProperty("--ms-cols",cfg.w);board.dataset.level=level;board.setAttribute("aria-rowcount",cfg.h);board.setAttribute("aria-colcount",cfg.w);board.innerHTML="";
