@@ -1,7 +1,7 @@
-/** Señor Jueguitos — hub v0.3.0 */
+/** Señor Jueguitos — hub v0.3.1 */
 (function(){
 "use strict";
-const VERSION={version:"0.3.0",date:"07/09/2026",label:"v0.3.0 · 07/09/2026"};
+const VERSION={version:"0.3.1",date:"08/09/2026",label:"v0.3.1 · 08/09/2026"};
 const GAMES=[
 {id:"sudoku",title:"Sudoku",description:"Rellena la cuadrícula 9×9. Genera, comprueba y parte de nuevo.",icon:"🔢",mount:(r,a)=>window.SJGames.sudoku.mount(r,a)},
 {id:"memoria",title:"Memoria",description:"Encuentra todas las parejas. Entrena la memoria visual.",icon:"🧠",mount:(r,a)=>window.SJGames.memoria.mount(r,a)},
