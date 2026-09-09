@@ -1,4 +1,4 @@
-/** Señor Jueguitos v0.3.0 · Comecocos en raíles */
+/** Señor Jueguitos v0.3.3 · Comecocos en raíles */
 (function(){
 "use strict";
 window.SJGames=window.SJGames||{};
@@ -12,7 +12,7 @@ const MAP=[
 "####.###.#.###.####",
 "----#.........#----",
 "####.#.##=##.#.####",
-".....#.#GGG#.#.....",
+".......#GGG#.......",
 "####.#.#####.#.####",
 "----#.........#----",
 "####.#.#####.#.####",
@@ -36,7 +36,7 @@ function mount(root,api){
  bestEl.textContent=best;
  function setStatus(t,k=""){status.textContent=t;status.className=`status-line ${k}`.trim()}
  function ch(x,y){return x>=0&&y>=0&&x<COLS&&y<ROWS?MAP[y][x]:"#"}
- function walkable(x,y,type){if(y<0||y>=ROWS)return false;if(x<0)return MAP[y][0]==="-";if(x>=COLS)return MAP[y][COLS-1]==="-";const c=ch(x,y);if(c==="#")return false;if(type==="player"&&(c==="="||c==="G"))return false;return true}
+ function walkable(x,y,type){if(y<0||y>=ROWS)return false;if(x<0)return MAP[y][0]!=="#";if(x>=COLS)return MAP[y][COLS-1]!=="#";const c=ch(x,y);if(c==="#")return false;if(type==="player"&&(c==="="||c==="G"))return false;return true}
  function actor(x,y,d){return{x,y,dir:d,nextDir:d}}
  function center(a){return Math.abs(a.x-Math.round(a.x))<EPS&&Math.abs(a.y-Math.round(a.y))<EPS}
  function snap(a){a.x=Math.round(a.x);a.y=Math.round(a.y)}
